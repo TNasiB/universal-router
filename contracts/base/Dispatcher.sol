@@ -86,8 +86,10 @@ abstract contract Dispatcher is NFTImmutables, Payments, V2SwapRouter, V3SwapRou
                         }
                         permit2TransferFrom(token, lockedBy, map(recipient), amount);
                     } else if (command == Commands.PERMIT2_PERMIT_BATCH) {
-                        (IAllowanceTransfer.PermitBatch memory permitBatch,) =
-                            abi.decode(inputs, (IAllowanceTransfer.PermitBatch, bytes));
+                        (IAllowanceTransfer.PermitBatch memory permitBatch, ) = abi.decode(
+                            inputs,
+                            (IAllowanceTransfer.PermitBatch, bytes)
+                        );
                         bytes calldata data = inputs.toBytes(1);
                         PERMIT2.permit(lockedBy, permitBatch, data);
                     } else if (command == Commands.SWEEP) {
@@ -188,8 +190,10 @@ abstract contract Dispatcher is NFTImmutables, Payments, V2SwapRouter, V3SwapRou
                         }
                         Payments.unwrapWETH9(map(recipient), amountMin);
                     } else if (command == Commands.PERMIT2_TRANSFER_FROM_BATCH) {
-                        (IAllowanceTransfer.AllowanceTransferDetails[] memory batchDetails) =
-                            abi.decode(inputs, (IAllowanceTransfer.AllowanceTransferDetails[]));
+                        IAllowanceTransfer.AllowanceTransferDetails[] memory batchDetails = abi.decode(
+                            inputs,
+                            (IAllowanceTransfer.AllowanceTransferDetails[])
+                        );
                         permit2TransferFrom(batchDetails, lockedBy);
                     } else if (command == Commands.BALANCE_CHECK_ERC20) {
                         // equivalent: abi.decode(inputs, (address, address, uint256))
@@ -341,8 +345,9 @@ abstract contract Dispatcher is NFTImmutables, Payments, V2SwapRouter, V3SwapRou
             } else if (command == Commands.EXECUTE_SUB_PLAN) {
                 bytes calldata _commands = inputs.toBytes(0);
                 bytes[] calldata _inputs = inputs.toBytesArray(1);
-                (success, output) =
-                    (address(this)).call(abi.encodeWithSelector(Dispatcher.execute.selector, _commands, _inputs));
+                (success, output) = (address(this)).call(
+                    abi.encodeWithSelector(Dispatcher.execute.selector, _commands, _inputs)
+                );
             } else if (command == Commands.APPROVE_ERC20) {
                 ERC20 token;
                 PaymentsImmutables.Spenders spender;
@@ -368,10 +373,10 @@ abstract contract Dispatcher is NFTImmutables, Payments, V2SwapRouter, V3SwapRou
     /// @param protocol The protocol to pass the calldata to
     /// @return success True on success of the command, false on failure
     /// @return output The outputs or error messages, if any, from the command
-    function callAndTransfer721(bytes calldata inputs, address protocol)
-        internal
-        returns (bool success, bytes memory output)
-    {
+    function callAndTransfer721(
+        bytes calldata inputs,
+        address protocol
+    ) internal returns (bool success, bytes memory output) {
         // equivalent: abi.decode(inputs, (uint256, bytes, address, address, uint256))
         (uint256 value, bytes calldata data) = getValueAndData(inputs);
         address recipient;
@@ -392,10 +397,10 @@ abstract contract Dispatcher is NFTImmutables, Payments, V2SwapRouter, V3SwapRou
     /// @param protocol The protocol to pass the calldata to
     /// @return success True on success of the command, false on failure
     /// @return output The outputs or error messages, if any, from the command
-    function callAndTransfer1155(bytes calldata inputs, address protocol)
-        internal
-        returns (bool success, bytes memory output)
-    {
+    function callAndTransfer1155(
+        bytes calldata inputs,
+        address protocol
+    ) internal returns (bool success, bytes memory output) {
         // equivalent: abi.decode(inputs, (uint256, bytes, address, address, uint256, uint256))
         (uint256 value, bytes calldata data) = getValueAndData(inputs);
         address recipient;
